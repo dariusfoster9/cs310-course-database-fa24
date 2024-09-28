@@ -1,5 +1,8 @@
 package edu.jsu.mcis.cs310.coursedb.dao;
 
+
+import com.github.cliftonlabs.json_simple.JsonArray;
+import com.github.cliftonlabs.json_simple.JsonObject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,7 +21,7 @@ public class SectionDAO {
     public String find(int termid, String subjectid, String num) {
         
         String result = "[]";
-        
+        JsonArray jArray=new JsonArray();
         PreparedStatement ps = null;
         ResultSet rs = null;
         ResultSetMetaData rsmd = null;
@@ -28,9 +31,21 @@ public class SectionDAO {
             Connection conn = daoFactory.getConnection();
             
             if (conn.isValid(0)) {
-                
-                // INSERT YOUR CODE HERE
-                
+                ps=conn.prepareStatement(QUERY_FIND);
+                ps.setInt(1,termid);
+                ps.setString(2,subjectid);
+                ps.setString(3,num);
+                rs=ps.executeQuery();
+                //-----------------------------------
+               while(rs.next()){
+                   JsonObject jObj=new JsonObject();
+                   jObj.put("termid",rs.getInt("termid"));
+                   jObj.put("subjectid",rs.getString("subjectid"));
+                   jObj.put("num",rs.getString("num"));
+                   jArray.add(jObj);
+                   result=jArray.toString();
+               }
+                //------------------------------------
             }
             
         }

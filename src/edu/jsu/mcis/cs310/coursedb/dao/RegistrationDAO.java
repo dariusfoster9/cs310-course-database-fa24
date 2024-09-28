@@ -10,6 +10,14 @@ public class RegistrationDAO {
     
     private final DAOFactory daoFactory;
     
+    private static final String QUERY_CREATE = "INSERT INTO registration (studentid, termid, crn) VALUES (?, ?, ?)";
+    
+    private static final String QUERY_DELETEALL = "DELETE FROM registration WHERE termid = ? AND studentid = ?";
+    
+    private static final String QUERY_DELETE = "DELETE FROM registration WHERE termid = ? AND studentid = ? AND CRN = ?";
+    
+    private static final String QUERY_SELECT = "SELECT * FROM registration WHERE studentid = ? AND termid = ? ORDER BY crn";
+    
     RegistrationDAO(DAOFactory daoFactory) {
         this.daoFactory = daoFactory;
     }
@@ -26,9 +34,12 @@ public class RegistrationDAO {
             Connection conn = daoFactory.getConnection();
             
             if (conn.isValid(0)) {
+                ps=conn.prepareStatement(QUERY_CREATE);
+                ps.setInt(1,studentid);
+                ps.setInt(2,termid);
+                ps.setInt(3,crn);
                 
-                // INSERT YOUR CODE HERE
-                
+                result=ps.executeUpdate()>0;
             }
             
         }
@@ -57,9 +68,12 @@ public class RegistrationDAO {
             Connection conn = daoFactory.getConnection();
             
             if (conn.isValid(0)) {
+                ps=conn.prepareStatement(QUERY_DELETE);
+                ps.setInt(1,studentid);
+                ps.setInt(2,termid);
+                ps.setInt(3,crn);
                 
-                // INSERT YOUR CODE HERE
-                
+                result=ps.executeUpdate()>0;
             }
             
         }
@@ -87,9 +101,11 @@ public class RegistrationDAO {
             Connection conn = daoFactory.getConnection();
             
             if (conn.isValid(0)) {
+                ps=conn.prepareStatement(QUERY_DELETEALL);
+                ps.setInt(1,studentid);
+                ps.setInt(2,termid);
                 
-                // INSERT YOUR CODE HERE
-                
+                result=ps.executeUpdate()>0;
             }
             
         }
@@ -106,10 +122,9 @@ public class RegistrationDAO {
         
     }
 
-    public String list(int studentid, int termid) {
+    public StringBuilder list(int studentid, int termid) {
         
-        String result = null;
-        
+        StringBuilder result=new StringBuilder();
         PreparedStatement ps = null;
         ResultSet rs = null;
         ResultSetMetaData rsmd = null;
@@ -119,8 +134,27 @@ public class RegistrationDAO {
             Connection conn = daoFactory.getConnection();
             
             if (conn.isValid(0)) {
+                ps=conn.prepareStatement(QUERY_SELECT);
+                ps.setInt(1,studentid);
+                ps.setInt(2,termid);
+                rs=ps.executeQuery();
+                //--------------------------------------
+                rsmd = rs.getMetaData();
+                int columnCount = rsmd.getColumnCount();
                 
-                // INSERT YOUR CODE HERE
+                
+                while (rs.next()){
+                    for (int i = 1; i <= columnCount; i++){
+                        result.append(rsmd.getColumnName(i))
+                                .append(": ")
+                                .append(rs.getString(i))
+                                .append(", ");
+                    }
+                    
+                    result.append("\n");
+                }
+                //--------------------------------------
+                
                 
             }
             
